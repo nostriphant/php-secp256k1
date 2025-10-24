@@ -1,0 +1,62 @@
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+    outputs:
+      # Map the workflow output(s) to job output(s)
+      reusable_output:
+        description: 'Output from the reusable workflow'
+        value: ${{ jobs.reusable-workflow-job.outputs.job_output }}
+
+jobs:
+  run-composer-test:
+    runs-on: ubuntu-latest
+
+    outputs:
+      job_output: ${{ steps.process-step.outputs.step_output }}
+      
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Install secp256k1_nostr extension for PHP
+        run: sudo apt install autoconf build-essential git libsecp256k1-dev libsodium-dev libtool php8.4-dev pkgconf
+
+      - name: Clone secp256k1_nostr extension for PHP repository
+        uses: actions/checkout@v4
+        with:
+          repository: '1ma/secp256k1-nostr-php'
+          ref: 'v0.1.5'
+          path: 'build/1ma/secp256k1-nostr-php'
+
+      - name: Build secp256k1_nostr extension for PHP
+        working-directory: ./build/1ma/secp256k1-nostr-php
+        run: |
+          make ext
+          make check
+
+      - name: Install secp256k1_nostr extension for PHP
+        working-directory: ./build/1ma/secp256k1-nostr-php
+        run: |
+            sudo make install
+            echo "extension=secp256k1_nostr.so" | sudo tee -a /etc/php/8.4/cli/conf.d/20-secp256k1_nostr.ini
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          ini-values: extension=secp256k1_nostr.so
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Tests
+        run: composer test -- --parallel
