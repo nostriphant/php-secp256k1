@@ -1,10 +1,6 @@
 name: Generate & Push docker PHP secp256k1 images, which can be used as bases for other php nostr projects
 
-on:
-  workflow_run:
-    workflows: [Tests]
-    types:
-      - completed
+on: ['push', 'pull_request']
 
 env:
   REGISTRY_IMAGE: nostriphant/nip-01
