@@ -2,6 +2,13 @@ name: Tests
 
 on:
   workflow_call:
+    inputs:
+      php_version:
+        description: 'Select a PHP version to use'
+        default: '8.4'
+        required: false
+        type: string
+        
     outputs:
       # Map the workflow output(s) to job output(s)
       reusable_output:
@@ -11,13 +18,6 @@ on:
 jobs:
   run-composer-test:
     runs-on: ubuntu-latest
-
-    inputs:
-      php_version:
-        description: 'Select a PHP version to use'
-        default: '8.4'
-        required: false
-        type: string
         
     outputs:
       job_output: ${{ steps.process-step.outputs.step_output }}
