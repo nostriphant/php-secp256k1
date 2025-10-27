@@ -50,8 +50,7 @@ jobs:
         working-directory: ./build/1ma/secp256k1-nostr-php
         run: |
             sudo make install
-            echo "extension=secp256k1_nostr.so" | sudo tee -a /etc/php/${{ inputs.php_version }}/cli/conf.d/20-secp256k1_nostr.ini
-
+            
       - name: Checkout
         uses: actions/checkout@v3
 
