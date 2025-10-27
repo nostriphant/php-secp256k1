@@ -63,4 +63,4 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Tests
-        run: composer test -- --parallel
+        run: composer test
