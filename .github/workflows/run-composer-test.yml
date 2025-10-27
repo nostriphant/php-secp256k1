@@ -12,6 +12,13 @@ jobs:
   run-composer-test:
     runs-on: ubuntu-latest
 
+    inputs:
+      php_version:
+        description: 'Select a PHP version to use'
+        default: '8.4'
+        required: false
+        type: string
+        
     outputs:
       job_output: ${{ steps.process-step.outputs.step_output }}
       
@@ -19,12 +26,12 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: ${{ inputs.php_version }}
           tools: composer:v2
           coverage: xdebug
 
       - name: Install secp256k1_nostr extension for PHP
-        run: sudo apt install autoconf build-essential git libsecp256k1-dev libsodium-dev libtool php8.4-dev pkgconf
+        run: sudo apt install autoconf build-essential git libsecp256k1-dev libsodium-dev libtool php${{ inputs.php_version }}-dev pkgconf
 
       - name: Clone secp256k1_nostr extension for PHP repository
         uses: actions/checkout@v4
@@ -43,7 +50,7 @@ jobs:
         working-directory: ./build/1ma/secp256k1-nostr-php
         run: |
             sudo make install
-            echo "extension=secp256k1_nostr.so" | sudo tee -a /etc/php/8.4/cli/conf.d/20-secp256k1_nostr.ini
+            echo "extension=secp256k1_nostr.so" | sudo tee -a /etc/php/${{ inputs.php_version }}/cli/conf.d/20-secp256k1_nostr.ini
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -51,7 +58,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: ${{ inputs.php_version }}
           ini-values: extension=secp256k1_nostr.so
 
       - name: Install Dependencies
