@@ -3,7 +3,7 @@ name: Generate & Push docker PHP secp256k1 images, which can be used as bases fo
 on: ['push', 'pull_request']
 
 env:
-  REGISTRY_IMAGE: nostriphant/nip-01
+  REGISTRY_IMAGE: nostriphant/php-secp256k1
 
 jobs:
   build:
