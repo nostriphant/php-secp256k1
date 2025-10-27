@@ -48,8 +48,7 @@ jobs:
 
       - name: Install secp256k1_nostr extension for PHP
         working-directory: ./build/1ma/secp256k1-nostr-php
-        run: |
-            sudo make install
+        run: sudo make install
             
       - name: Checkout
         uses: actions/checkout@v3
