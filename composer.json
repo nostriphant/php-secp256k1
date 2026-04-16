@@ -1,0 +1,42 @@
+{
+    "name": "nostriphant/secp256k1",
+    "description": "Wrapper around 1ma/secp256k1-nostr extension, falls back to simplito/elliptic (pure PHP implementation) when the extension is not available",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rik Meijer",
+            "email": "nostriphant@rikmeijer.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "nostriphant\\Secp256k1\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "nostriphant\\Secp256k1Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=8.4",
+        "simplito/elliptic-php": "^1.0"
+    },
+    "suggest": {
+        "1ma/secp256k1-nostr-php": "C extension for faster secp256k1 Nostr operations"
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.35"
+    },
+    "scripts": {
+        "test": [
+            "./vendor/bin/pest"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
