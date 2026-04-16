@@ -25,7 +25,7 @@ class Secp256k1 {
         if (function_exists('secp256k1_nostr_derive_pubkey')) {
             return secp256k1_nostr_derive_pubkey($private_key);
         }
-        $ec = Key::curve();
+        $ec = self::curve();
         return substr($ec->keyFromPrivate($private_key)->getPublic(true, 'hex'), 2);
     }
 
@@ -35,7 +35,7 @@ class Secp256k1 {
         if (function_exists('secp256k1_nostr_sign')) {
             return secp256k1_nostr_sign($private_key, $hash);
         }
-        $ec = Key::curve();
+        $ec = self::curve();
         $key = $ec->keyFromPrivate($private_key, 'hex');
         return $key->sign($hash)->toDER('hex');
     }
@@ -46,7 +46,7 @@ class Secp256k1 {
         if (function_exists('secp256k1_nostr_verify')) {
             return secp256k1_nostr_verify($public_key, $hash, $signature);
         }
-        $ec = Key::curve();
+        $ec = self::curve();
         $key = $ec->keyFromPublic('03' . $public_key, 'hex');
         return $key->verify($hash, $signature);
     }
