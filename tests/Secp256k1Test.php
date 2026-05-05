@@ -17,10 +17,7 @@ $vectors = json_decode(file_get_contents(__DIR__ . '/vectors/ecdh-secp256k1.json
 it('works with paulmillrs vectors', function ($vector) {
     // https://github.com/paulmillr/noble-secp256k1/blob/main/test/wycheproof/ecdh_secp256k1_test.json
     
-    $ec = Secp256k1::curve();
-    $key1 = $ec->keyFromPrivate($vector->private, 'hex');
-    $pub2 = $ec->keyFromPublic(substr($vector->public, 46), 'hex')->pub;
-    $secret = $key1->derive($pub2)->toString('hex');
+    $secret = Secp256k1::sharedSecret(substr($vector->public, 46))($vector->private);
 
     //$secret = Key::fromHex($vector->private)(Key::sharedSecret(substr($vector->public, 46)));
     expect(str_pad($secret, 64, '0', STR_PAD_LEFT))->toBe($vector->shared);

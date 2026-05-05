@@ -51,4 +51,16 @@ class Secp256k1 {
         return $key->verify($hash, $signature);
     }
 
+    static function sharedSecret(#[\SensitiveParameter] string $recipient_pubkey) {
+        return function (#[\SensitiveParameter] string $private_key) use ($recipient_pubkey): bool|string {
+            $ec = self::curve();
+            try {
+                $key1 = $ec->keyFromPrivate($private_key, 'hex');
+                $pub2 = $ec->keyFromPublic($recipient_pubkey, 'hex')->pub;
+                return $key1->derive($pub2)->toString('hex');
+            } catch (\Exception $e) {
+                throw new \InvalidArgumentException($e->getMessage());
+            }
+        };
+    }
 }
