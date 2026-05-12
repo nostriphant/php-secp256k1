@@ -40,7 +40,6 @@ class Secp256k1 {
         return $key->sign($hash)->toDER('hex');
     }
 
-
     static function verify(string $public_key, string $hash, string $signature): bool
     {
         if (function_exists('secp256k1_nostr_verify')) {
@@ -48,7 +47,12 @@ class Secp256k1 {
         }
         $ec = self::curve();
         $key = $ec->keyFromPublic('03' . $public_key, 'hex');
-        return $key->verify($hash, $signature);
+        try {
+          return $key->verify($hash, $signature);
+        } catch (\Exception $e) {
+          error_log($e->getMessage(), E_USER_WARNING);
+          return false;
+        }
     }
 
     static function sharedSecret(#[\SensitiveParameter] string $recipient_pubkey) {
