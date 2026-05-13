@@ -25,19 +25,51 @@ class Secp256k1 {
         if (function_exists('secp256k1_nostr_derive_pubkey')) {
             return secp256k1_nostr_derive_pubkey($private_key);
         }
-        $ec = self::curve();
-        return substr($ec->keyFromPrivate($private_key)->getPublic(true, 'hex'), 2);
+        $curved_private_key = \EllipticCurve\PrivateKey::fromString($private_key);
+        return substr($curved_private_key->publicKey()->toCompressed(), 2);
     }
 
+    static function derToAsn(string $der): string {
+        $hex = bin2hex($der);
+        if (substr($hex, 0, 2) !== '30') {
+            throw new \InvalidArgumentException("Ongeldig DER formaat.");
+        }
+
+        // Snijd de DER-wrapper op basis van byteseriatie uit
+        $offset = 4;
+
+        // Haal R op
+        if (substr($hex, $offset, 2) !== '02') return '';
+        $r_len = hexdec(substr($hex, $offset + 2, 2)) * 2;
+        $r = substr($hex, $offset + 4, $r_len);
+        if (strlen($r) > 64 && substr($r, 0, 2) === '00') { $r = substr($r, 2); } // Verwijder padding byte
+        $r = str_pad($r, 64, '0', STR_PAD_LEFT);
+
+        $offset += 4 + $r_len;
+
+        // Haal S op
+        if (substr($hex, $offset, 2) !== '02') return '';
+        $s_len = hexdec(substr($hex, $offset + 2, 2)) * 2;
+        $s = substr($hex, $offset + 4, $s_len);
+        if (strlen($s) > 64 && substr($s, 0, 2) === '00') { $s = substr($s, 2); } // Verwijder padding byte
+        $s = str_pad($s, 64, '0', STR_PAD_LEFT);
+
+        return $r . $s;
+    }
 
     static function sign(string $private_key, string $hash): string
     {
         if (function_exists('secp256k1_nostr_sign')) {
             return secp256k1_nostr_sign($private_key, $hash);
         }
-        $ec = self::curve();
-        $key = $ec->keyFromPrivate($private_key, 'hex');
-        return $key->sign($hash)->toDER('hex');
+        
+        $curved_private_key = \EllipticCurve\PrivateKey::fromString($private_key);
+        
+        $signature_der = "";
+        if (openssl_sign($hash, $signature_der, $curved_private_key->toPem(), OPENSSL_ALGO_SHA256) === false) {
+            throw new \Exception('Failed signing: ' . openssl_error_string());
+        }
+        return self::derToAsn($signature_der);
     }
 
     static function verify(string $public_key, string $hash, string $signature): bool
@@ -45,14 +77,9 @@ class Secp256k1 {
         if (function_exists('secp256k1_nostr_verify')) {
             return secp256k1_nostr_verify($public_key, $hash, $signature);
         }
-        $ec = self::curve();
-        $key = $ec->keyFromPublic('03' . $public_key, 'hex');
-        try {
-          return $key->verify($hash, $signature);
-        } catch (\Exception $e) {
-          error_log($e->getMessage(), E_USER_WARNING);
-          return false;
-        }
+        $curver_public_key = \EllipticCurve\PublicKey::fromCompressed('03'.$public_key);
+        $signatureBinary = hex2bin($signature);
+        return openssl_verify($hash, $signatureBinary, $curver_public_key->toPem(), OPENSSL_ALGO_SHA256);
     }
 
     static function sharedSecret(#[\SensitiveParameter] string $recipient_pubkey) {

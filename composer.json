@@ -21,7 +21,8 @@
     },
     "require": {
         "php": ">=8.4",
-        "simplito/elliptic-php": "^1.0"
+        "simplito/elliptic-php": "^1.0",
+        "starkbank/ecdsa": "^2.2"
     },
     "suggest": {
         "1ma/secp256k1-nostr-php": "C extension for faster secp256k1 Nostr operations"

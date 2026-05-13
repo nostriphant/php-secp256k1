@@ -29,7 +29,9 @@ it('can sign a string and verify a signature', function () {
     expect(Secp256k1::derive($private_key))->toBe('89ac55aeeb301252da33b51ca4d189cb1d665b8f00618f5ea72c2ec59ca555e9');
 
     $hash = hash('sha256', 'hallo world');
+    expect($hash)->toBe('ad9093910d289561186b373cb03716af5dd0d602c717ee640243f3d6a25fd6b7');
+    
     $signature = Secp256k1::sign($private_key, $hash);
-
+    
     expect(Secp256k1::verify('89ac55aeeb301252da33b51ca4d189cb1d665b8f00618f5ea72c2ec59ca555e9', $hash, $signature))->toBeTrue();
 });
