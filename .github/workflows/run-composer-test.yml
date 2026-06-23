@@ -33,6 +33,7 @@ jobs:
       - name: Install secp256k1_nostr extension for PHP
         run: |
           sudo apt update
+          sudo apt upgrade -y
           sudo apt install autoconf build-essential git libsecp256k1-dev libsodium-dev libtool php${{ inputs.php_version }}-dev pkgconf
 
       - name: Clone secp256k1_nostr extension for PHP repository
